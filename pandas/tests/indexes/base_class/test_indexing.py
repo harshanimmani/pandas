@@ -109,8 +109,21 @@ class TestGetLoc:
         # we don't match at all on mismatched NA
         with pytest.raises(KeyError, match="NaT"):
             idx.get_loc(pd.NaT)
+    def test_get_loc_iterable_scalar_key(self):
+            # GH#71835
+        class IterableScalar:
+            ndim = 0
+
+            def __iter__(self):
+                raise TypeError("scalar quantity is not iterable")
 
 
+
+        idx = pd.Index([1, 2])
+        key = IterableScalar()
+
+        with pytest.raises(KeyError):
+            idx.get_loc(key)
 def test_get_indexer_monotonic_above_size_cutoff(monkeypatch):
     # GH#14273 get_indexer should avoid building a hash table for large
     # monotonic indices.
